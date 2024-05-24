@@ -14,7 +14,8 @@
     "lint:fix": "eslint . --ignore-path .gitignore --max-warnings 0 --fix",
     "test": "ava",
     "test:watch": "ava -w",
-    "test:coverage": "c8 npm run test --"
+    "test:coverage": "c8 npm run test --",
+    "tealscript": "tealscript test/contracts/sorted_standard_verifier.algo.ts test/contracts/artifacts/ &&  algokitgen generate -a test/contracts/artifacts/SortedStandardVerifier.arc32.json -o test/contracts/clients/SortedStandardVerifier.ts"
   },
   "files": [
     "/src",
@@ -26,12 +27,15 @@
   "author": "Francisco Giordano <fg@frang.io>",
   "license": "MIT",
   "dependencies": {
+    "@algorandfoundation/algokit-utils": "^6.0.5",
     "@ethersproject/bytes": "^5.7.0",
     "@ethersproject/constants": "^5.7.0",
     "@ethersproject/keccak256": "^5.7.0",
     "algosdk": "^2.7.0"
   },
   "devDependencies": {
+    "@algorandfoundation/algokit-client-generator": "^3.0.3",
+    "@algorandfoundation/tealscript": "^0.92.0",
     "@fast-check/ava": "^1.2.1",
     "@typescript-eslint/eslint-plugin": "^7.1.0",
     "@typescript-eslint/parser": "^7.1.0",

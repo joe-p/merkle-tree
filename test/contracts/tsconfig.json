@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+      "incremental": true,
+      "target": "es2020",
+      "module": "commonjs",
+      "strict": true,
+      "moduleResolution": "node",
+      "esModuleInterop": true,
+      "experimentalDecorators": true
+    },
+    "include": [
+      "./*.algo.ts"
+    ],
+    "ts-node": {
+      "transpileOnly": true
+    }
+  }

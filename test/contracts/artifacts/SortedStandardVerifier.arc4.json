@@ -1,0 +1,33 @@
+{
+  "name": "SortedStandardVerifier",
+  "desc": "",
+  "methods": [
+    {
+      "name": "verifyProof",
+      "args": [
+        {
+          "name": "root",
+          "type": "byte[32]"
+        },
+        {
+          "name": "leaf",
+          "type": "byte[]"
+        },
+        {
+          "name": "proof",
+          "type": "byte[32][]"
+        }
+      ],
+      "returns": {
+        "type": "bool"
+      }
+    },
+    {
+      "name": "createApplication",
+      "args": [],
+      "returns": {
+        "type": "void"
+      }
+    }
+  ]
+}

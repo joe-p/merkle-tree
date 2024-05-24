@@ -10,7 +10,7 @@ console.debug(__dirname);
 console.log(sorted.dump());
 
 const unsorted = StandardMerkleTree.of(leaves, ['string'], { sortLeaves: false });
-
+unsorted.verify();
 console.log(unsorted.dump());
 
 writeFileSync(path.join(dumpsDir, 'standard-v1.sorted.1_0_6.json'), JSON.stringify(sorted.dump()));
