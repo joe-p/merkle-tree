@@ -57,6 +57,14 @@ switch *call_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEM
 	return
 
 // verifyProof(root: bytes32, leaf: bytes, proof: bytes32[]): boolean
+//
+// Prove that a leaf is in a merkle tree by verifying the path to the root
+//
+// @param root The merkle root
+// @param leaf The unhashed leaf to verify. This should be the raw ABI encoded value.
+// @param proof The merkle proof
+//
+// @returns True if the proof is valid, false otherwise
 verifyProof:
 	proto 3 1
 
@@ -64,20 +72,20 @@ verifyProof:
 	byte 0x
 	dup
 
-	// test/contracts/sorted_standard_verifier.algo.ts:5
+	// test/contracts/sorted_standard_verifier.algo.ts:14
 	// hash = keccak256(keccak256(leaf))
 	frame_dig -2 // leaf: bytes
 	keccak256
 	keccak256
 	frame_bury 0 // hash: byte[32]
 
-	// test/contracts/sorted_standard_verifier.algo.ts:7
+	// test/contracts/sorted_standard_verifier.algo.ts:16
 	// for (let i = 0; i < proof.length; i += 1)
 	int 0
 	frame_bury 1 // i: uint64
 
 *for_0:
-	// test/contracts/sorted_standard_verifier.algo.ts:7
+	// test/contracts/sorted_standard_verifier.algo.ts:16
 	// i < proof.length
 	frame_dig 1 // i: uint64
 	frame_dig -3 // proof: bytes32[]
@@ -88,7 +96,7 @@ verifyProof:
 	bz *for_0_end
 
 	// *if0_condition
-	// test/contracts/sorted_standard_verifier.algo.ts:9
+	// test/contracts/sorted_standard_verifier.algo.ts:18
 	// globals.opcodeBudget < 145
 	global OpcodeBudget
 	int 145
@@ -96,7 +104,7 @@ verifyProof:
 	bz *if0_end
 
 	// *if0_consequent
-	// test/contracts/sorted_standard_verifier.algo.ts:10
+	// test/contracts/sorted_standard_verifier.algo.ts:19
 	// increaseOpcodeBudget()
 	itxn_begin
 	int appl
@@ -113,7 +121,7 @@ verifyProof:
 
 *if0_end:
 	// *if1_condition
-	// test/contracts/sorted_standard_verifier.algo.ts:13
+	// test/contracts/sorted_standard_verifier.algo.ts:22
 	// btobigint(proof[i]) > btobigint(hash)
 	frame_dig -3 // proof: bytes32[]
 	store 255 // full array
@@ -131,7 +139,7 @@ verifyProof:
 	bz *if1_else
 
 	// *if1_consequent
-	// test/contracts/sorted_standard_verifier.algo.ts:14
+	// test/contracts/sorted_standard_verifier.algo.ts:23
 	// hash = keccak256(hash + proof[i])
 	frame_dig 0 // hash: byte[32]
 	frame_dig -3 // proof: bytes32[]
@@ -151,7 +159,7 @@ verifyProof:
 	b *if1_end
 
 *if1_else:
-	// test/contracts/sorted_standard_verifier.algo.ts:16
+	// test/contracts/sorted_standard_verifier.algo.ts:25
 	// hash = keccak256(proof[i] + hash)
 	frame_dig -3 // proof: bytes32[]
 	store 255 // full array
@@ -172,7 +180,7 @@ verifyProof:
 *if1_end:
 
 *for_0_continue:
-	// test/contracts/sorted_standard_verifier.algo.ts:7
+	// test/contracts/sorted_standard_verifier.algo.ts:16
 	// i += 1
 	frame_dig 1 // i: uint64
 	int 1
@@ -181,7 +189,7 @@ verifyProof:
 	b *for_0
 
 *for_0_end:
-	// test/contracts/sorted_standard_verifier.algo.ts:20
+	// test/contracts/sorted_standard_verifier.algo.ts:29
 	// return hash === root;
 	frame_dig 0 // hash: byte[32]
 	frame_dig -1 // root: bytes32

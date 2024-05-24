@@ -4,22 +4,27 @@
   "methods": [
     {
       "name": "verifyProof",
+      "desc": "Prove that a leaf is in a merkle tree by verifying the path to the root",
       "args": [
         {
           "name": "root",
-          "type": "byte[32]"
+          "type": "byte[32]",
+          "desc": "The merkle root"
         },
         {
           "name": "leaf",
-          "type": "byte[]"
+          "type": "byte[]",
+          "desc": "The unhashed leaf to verify. This should be the raw ABI encoded value."
         },
         {
           "name": "proof",
-          "type": "byte[32][]"
+          "type": "byte[32][]",
+          "desc": "The merkle proof"
         }
       ],
       "returns": {
-        "type": "bool"
+        "type": "bool",
+        "desc": "True if the proof is valid, false otherwise"
       }
     },
     {
