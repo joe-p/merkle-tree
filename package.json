@@ -1,8 +1,8 @@
 {
-  "name": "@openzeppelin/merkle-tree",
-  "version": "1.0.6",
+  "name": "@joe-p/merkle-tree",
+  "version": "0.0.1",
   "description": "Utilities to work with merkle trees",
-  "repository": "github:OpenZeppelin/merkle-tree",
+  "repository": "github:joe-p/merkle-tree",
   "main": "dist/index.js",
   "scripts": {
     "prepublishOnly": "npm run clean",
@@ -26,10 +26,10 @@
   "author": "Francisco Giordano <fg@frang.io>",
   "license": "MIT",
   "dependencies": {
-    "@ethersproject/abi": "^5.7.0",
     "@ethersproject/bytes": "^5.7.0",
     "@ethersproject/constants": "^5.7.0",
-    "@ethersproject/keccak256": "^5.7.0"
+    "@ethersproject/keccak256": "^5.7.0",
+    "algosdk": "^2.7.0"
   },
   "devDependencies": {
     "@fast-check/ava": "^1.2.1",

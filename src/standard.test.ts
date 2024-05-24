@@ -132,7 +132,7 @@ test('reject malformed tree dump', t => {
       StandardMerkleTree.load({
         format: 'standard-v1',
         tree: [zero],
-        values: [{ value: ['0'], treeIndex: 0 }],
+        values: [{ value: [0], treeIndex: 0 }],
         leafEncoding: ['uint256'],
       }),
     new InvariantError('Merkle tree does not contain the expected value'),

@@ -1,4 +1,4 @@
-import { defaultAbiCoder } from '@ethersproject/abi';
+import { defaultAbiCoder } from './encoder';
 import { keccak256 } from '@ethersproject/keccak256';
 import { BytesLike, HexString, concat, compare } from './bytes';
 
