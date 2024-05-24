@@ -24,7 +24,7 @@
     "!**/*.test.*"
   ],
   "keywords": [],
-  "author": "Francisco Giordano <fg@frang.io>",
+  "author": "Joe Polny <joe@algorand.foundation>",
   "license": "MIT",
   "dependencies": {
     "@algorandfoundation/algokit-utils": "^6.0.5",
