@@ -143,7 +143,7 @@ test('reject malformed tree dump', t => {
       StandardMerkleTree.load({
         format: 'standard-v1',
         tree: [zero, zero, keccak256(keccak256(zero))],
-        values: [{ value: ['0'], treeIndex: 2 }],
+        values: [{ value: [0], treeIndex: 2 }],
         leafEncoding: ['uint256'],
       }),
     new InvariantError('Merkle tree is invalid'),
