@@ -3,8 +3,6 @@ import { StandardMerkleTree } from '../src';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { SortedStandardVerifierClient } from './contracts/clients/SortedStandardVerifier.ts';
 import algosdk from 'algosdk';
-import { microAlgos } from '@algorandfoundation/algokit-utils';
-import { keccak256 } from '@ethersproject/keccak256';
 
 const fixture = algorandFixture();
 let typedClient: SortedStandardVerifierClient;
