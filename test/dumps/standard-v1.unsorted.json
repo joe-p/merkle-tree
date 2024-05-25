@@ -1,1 +1,57 @@
-{"format":"standard-v1","leafEncoding":["string"],"tree":["0x4a761d814cd0506a32d2941e951b03bfb1d2acbe4824031df156a3d714699fbd","0xfe42908179f9622e645ab25e50b4e4f1d872e103fc1ac3389cd4966dfa5ed3ad","0x64079c8f304522951a73fde1c788cac674dd19a0dc02a482bf3742430b45f924","0x98fe9bce5556fb80d481867a5586680d11d511ef608387edcece5c760d8f7ed2","0x9112b453fde8065eb26d58a559047fc8fc5c24e66c0dfafacc892d512dfcc90b","0xac51930bb755e20efaf2b0e87c45a8f3b597a847d85410f002ef228fdd7a35c0","0x3502d24c46700c32d118f1655f72acfdf0cdcf6f7249d151edd8bcda9570d217","0xd6e0d9566a71058f38980a749698dc927c72880697e0e2155ac9b59ce17ab83a","0x1e50cf08461a090b2cf07d4a31542dc199b365436fbe5be29d745e4ff6fc9a71","0x7e3f8b7629dbe331becd19adaa6cbcc18dd9fbb802772d97ad03d80cdaa32afe","0xf490c982a2c82fcdccc47aa9408179bc5477303a8cb0bc79446c96e5d43db30e"],"values":[{"value":["a"],"treeIndex":10},{"value":["b"],"treeIndex":9},{"value":["c"],"treeIndex":8},{"value":["d"],"treeIndex":7},{"value":["e"],"treeIndex":6},{"value":["f"],"treeIndex":5}]}
+{
+  "format": "standard-v1",
+  "leafEncoding": [
+    "string"
+  ],
+  "tree": [
+    "0x4a761d814cd0506a32d2941e951b03bfb1d2acbe4824031df156a3d714699fbd",
+    "0xfe42908179f9622e645ab25e50b4e4f1d872e103fc1ac3389cd4966dfa5ed3ad",
+    "0x64079c8f304522951a73fde1c788cac674dd19a0dc02a482bf3742430b45f924",
+    "0x98fe9bce5556fb80d481867a5586680d11d511ef608387edcece5c760d8f7ed2",
+    "0x9112b453fde8065eb26d58a559047fc8fc5c24e66c0dfafacc892d512dfcc90b",
+    "0xac51930bb755e20efaf2b0e87c45a8f3b597a847d85410f002ef228fdd7a35c0",
+    "0x3502d24c46700c32d118f1655f72acfdf0cdcf6f7249d151edd8bcda9570d217",
+    "0xd6e0d9566a71058f38980a749698dc927c72880697e0e2155ac9b59ce17ab83a",
+    "0x1e50cf08461a090b2cf07d4a31542dc199b365436fbe5be29d745e4ff6fc9a71",
+    "0x7e3f8b7629dbe331becd19adaa6cbcc18dd9fbb802772d97ad03d80cdaa32afe",
+    "0xf490c982a2c82fcdccc47aa9408179bc5477303a8cb0bc79446c96e5d43db30e"
+  ],
+  "values": [
+    {
+      "value": [
+        "a"
+      ],
+      "treeIndex": 10
+    },
+    {
+      "value": [
+        "b"
+      ],
+      "treeIndex": 9
+    },
+    {
+      "value": [
+        "c"
+      ],
+      "treeIndex": 8
+    },
+    {
+      "value": [
+        "d"
+      ],
+      "treeIndex": 7
+    },
+    {
+      "value": [
+        "e"
+      ],
+      "treeIndex": 6
+    },
+    {
+      "value": [
+        "f"
+      ],
+      "treeIndex": 5
+    }
+  ]
+}
