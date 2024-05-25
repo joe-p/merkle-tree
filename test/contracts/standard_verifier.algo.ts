@@ -1,6 +1,6 @@
 import { Contract } from '@algorandfoundation/tealscript';
 
-export default class SortedStandardVerifier extends Contract {
+export default class StandardVerifier extends Contract {
   /**
    * Prove that a leaf is in a merkle tree by verifying the path to the root
    *

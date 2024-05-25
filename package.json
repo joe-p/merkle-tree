@@ -15,7 +15,7 @@
     "test": "ava",
     "test:watch": "ava -w",
     "test:coverage": "c8 npm run test --",
-    "tealscript": "tealscript test/contracts/sorted_standard_verifier.algo.ts test/contracts/artifacts/ &&  algokitgen generate -a test/contracts/artifacts/SortedStandardVerifier.arc32.json -o test/contracts/clients/SortedStandardVerifier.ts"
+    "tealscript": "tealscript test/contracts/standard_verifier.algo.ts test/contracts/artifacts/ &&  algokitgen generate -a test/contracts/artifacts/StandardVerifier.arc32.json -o test/contracts/clients/StandardVerifier.ts"
   },
   "files": [
     "/src",

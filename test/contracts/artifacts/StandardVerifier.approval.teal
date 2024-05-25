@@ -77,13 +77,13 @@ keccak256Verify:
 	// Push empty bytes after the frame pointer to reserve space for local variables
 	byte 0x
 
-	// test/contracts/sorted_standard_verifier.algo.ts:16
+	// test/contracts/standard_verifier.algo.ts:16
 	// for (let i = 0; i < proof.length; i += 1)
 	int 0
 	frame_bury 0 // i: uint64
 
 *for_0:
-	// test/contracts/sorted_standard_verifier.algo.ts:16
+	// test/contracts/standard_verifier.algo.ts:16
 	// i < proof.length
 	frame_dig 0 // i: uint64
 	frame_dig -3 // proof: bytes32[]
@@ -94,7 +94,7 @@ keccak256Verify:
 	bz *for_0_end
 
 	// *if0_condition
-	// test/contracts/sorted_standard_verifier.algo.ts:18
+	// test/contracts/standard_verifier.algo.ts:18
 	// globals.opcodeBudget < 145
 	global OpcodeBudget
 	int 145
@@ -102,7 +102,7 @@ keccak256Verify:
 	bz *if0_end
 
 	// *if0_consequent
-	// test/contracts/sorted_standard_verifier.algo.ts:19
+	// test/contracts/standard_verifier.algo.ts:19
 	// increaseOpcodeBudget()
 	itxn_begin
 	int appl
@@ -119,7 +119,7 @@ keccak256Verify:
 
 *if0_end:
 	// *if1_condition
-	// test/contracts/sorted_standard_verifier.algo.ts:22
+	// test/contracts/standard_verifier.algo.ts:22
 	// btobigint(proof[i]) > btobigint(hash)
 	frame_dig -3 // proof: bytes32[]
 	store 255 // full array
@@ -137,7 +137,7 @@ keccak256Verify:
 	bz *if1_else
 
 	// *if1_consequent
-	// test/contracts/sorted_standard_verifier.algo.ts:23
+	// test/contracts/standard_verifier.algo.ts:23
 	// hash = keccak256(hash + proof[i])
 	frame_dig -2 // hashedLeaf: bytes32
 	frame_dig -3 // proof: bytes32[]
@@ -157,7 +157,7 @@ keccak256Verify:
 	b *if1_end
 
 *if1_else:
-	// test/contracts/sorted_standard_verifier.algo.ts:25
+	// test/contracts/standard_verifier.algo.ts:25
 	// hash = keccak256(proof[i] + hash)
 	frame_dig -3 // proof: bytes32[]
 	store 255 // full array
@@ -178,7 +178,7 @@ keccak256Verify:
 *if1_end:
 
 *for_0_continue:
-	// test/contracts/sorted_standard_verifier.algo.ts:16
+	// test/contracts/standard_verifier.algo.ts:16
 	// i += 1
 	frame_dig 0 // i: uint64
 	int 1
@@ -187,7 +187,7 @@ keccak256Verify:
 	b *for_0
 
 *for_0_end:
-	// test/contracts/sorted_standard_verifier.algo.ts:29
+	// test/contracts/standard_verifier.algo.ts:29
 	// return hash === root;
 	frame_dig -2 // hashedLeaf: bytes32
 	frame_dig -1 // root: bytes32

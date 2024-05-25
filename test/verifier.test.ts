@@ -1,12 +1,12 @@
 import test from 'ava';
 import { StandardMerkleTree } from '../src';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
-import { SortedStandardVerifierClient } from './contracts/clients/SortedStandardVerifier.ts';
+import { StandardVerifierClient } from './contracts/clients/StandardVerifier.ts';
 import algosdk, { ABIValue } from 'algosdk';
 import { keccak256 } from '@ethersproject/keccak256';
 
 const fixture = algorandFixture();
-let typedClient: SortedStandardVerifierClient;
+let typedClient: StandardVerifierClient;
 
 const alice = algosdk.generateAccount().addr;
 const bob = algosdk.generateAccount().addr;
@@ -34,7 +34,7 @@ test.before(async t => {
   const { algorand } = fixture;
   const { testAccount } = fixture.context;
 
-  typedClient = new SortedStandardVerifierClient(
+  typedClient = new StandardVerifierClient(
     {
       resolveBy: 'id',
       id: 0,
