@@ -7,23 +7,19 @@ import { validateArgument } from './utils/errors';
 
 export interface StandardMerkleTreeData<T extends any[]> extends MerkleTreeData<T> {
   format: 'standard-v1';
-  leafEncoding: string[];
+  leafEncoding: string;
 }
 
 export class StandardMerkleTree<T extends any[]> extends MerkleTreeImpl<T> {
   protected constructor(
     protected readonly tree: HexString[],
     protected readonly values: StandardMerkleTreeData<T>['values'],
-    protected readonly leafEncoding: string[],
+    protected readonly leafEncoding: string,
   ) {
     super(tree, values, leaf => standardLeafHash(leafEncoding, leaf));
   }
 
-  static of<T extends any[]>(
-    values: T[],
-    leafEncoding: string[],
-    options: MerkleTreeOptions = {},
-  ): StandardMerkleTree<T> {
+  static of<T extends any[]>(values: T, leafEncoding: string, options: MerkleTreeOptions = {}): StandardMerkleTree<T> {
     // use default nodeHash (standardNodeHash)
     const [tree, indexedValues] = MerkleTreeImpl.prepare(values, options, leaf => standardLeafHash(leafEncoding, leaf));
     return new StandardMerkleTree(tree, indexedValues, leafEncoding);
@@ -38,14 +34,14 @@ export class StandardMerkleTree<T extends any[]> extends MerkleTreeImpl<T> {
     return tree;
   }
 
-  static verify<T extends any[]>(root: BytesLike, leafEncoding: string[], leaf: T, proof: BytesLike[]): boolean {
+  static verify<T extends any[]>(root: BytesLike, leafEncoding: string, leaf: T, proof: BytesLike[]): boolean {
     // use default nodeHash (standardNodeHash) for processProof
     return toHex(root) === processProof(standardLeafHash(leafEncoding, leaf), proof);
   }
 
   static verifyMultiProof<T extends any[]>(
     root: BytesLike,
-    leafEncoding: string[],
+    leafEncoding: string,
     multiproof: MultiProof<BytesLike, T>,
   ): boolean {
     // use default nodeHash (standardNodeHash) for processMultiProof

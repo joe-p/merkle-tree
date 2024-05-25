@@ -6,7 +6,7 @@ import { InvalidArgumentError, InvariantError } from './utils/errors';
 
 fc.configureGlobal({ numRuns: process.env.CI ? 5000 : 100 });
 
-const leafEncoding = ['uint256', 'string[]'];
+const leafEncoding = '(uint256,string[])';
 const leaf = fc.tuple(fc.bigUintN(256), fc.array(fc.string()));
 const leaves = fc.array(leaf, { minLength: 1, maxLength: 1000 });
 const options = fc.record({ sortLeaves: fc.oneof(fc.constant(undefined), fc.boolean()) });
@@ -43,14 +43,11 @@ testProp('generates a valid tree', [tree], (t, [tree]) => {
   t.is(tree.at(tree.length), undefined);
 });
 
-testProp('generates valid single proofs for all leaves', [treeAndLeaf], (t, [tree, , { value: leaf, index }]) => {
-  const proof1 = tree.getProof(index);
-  const proof2 = tree.getProof(leaf);
+testProp('generates valid single proofs for all leaves', [treeAndLeaf], (t, [tree, , { value: leaf }]) => {
+  const proof = tree.getProof(leaf);
 
-  t.deepEqual(proof1, proof2);
-  t.true(tree.verify(index, proof1));
-  t.true(tree.verify(leaf, proof1));
-  t.true(StandardMerkleTree.verify(tree.root, leafEncoding, leaf, proof1));
+  t.true(tree.verify(leaf, proof));
+  t.true(StandardMerkleTree.verify(tree.root, leafEncoding, leaf, proof));
 });
 
 testProp('rejects invalid proofs', [treeAndLeaf, tree], (t, [tree, , { value: leaf }], [otherTree]) => {
@@ -60,16 +57,14 @@ testProp('rejects invalid proofs', [treeAndLeaf, tree], (t, [tree, , { value: le
 });
 
 testProp('generates valid multiproofs', [treeAndLeaves], (t, [tree, , indices]) => {
-  const proof1 = tree.getMultiProof(indices.map(e => e.index));
-  const proof2 = tree.getMultiProof(indices.map(e => e.value));
+  const proof = tree.getMultiProof(indices.map(e => e.value));
 
-  t.deepEqual(proof1, proof2);
-  t.true(tree.verifyMultiProof(proof1));
-  t.true(StandardMerkleTree.verifyMultiProof(tree.root, leafEncoding, proof1));
+  t.true(tree.verifyMultiProof(proof));
+  t.true(StandardMerkleTree.verifyMultiProof(tree.root, leafEncoding, proof));
 });
 
 testProp('rejects invalid multiproofs', [treeAndLeaves, tree], (t, [tree, , indices], [otherTree]) => {
-  const multiProof = tree.getMultiProof(indices.map(e => e.index));
+  const multiProof = tree.getMultiProof(indices.map(e => e.value));
 
   t.false(otherTree.verifyMultiProof(multiProof));
   t.false(StandardMerkleTree.verifyMultiProof(otherTree.root, leafEncoding, multiProof));
@@ -110,10 +105,6 @@ testProp('dump and load', [tree], (t, [tree]) => {
   t.deepEqual(tree.dump(), recoveredTree.dump());
 });
 
-testProp('reject out of bounds value index', [tree], (t, [tree]) => {
-  t.throws(() => tree.getProof(-1), new InvalidArgumentError('Index out of bounds'));
-});
-
 test('reject unrecognized tree dump', t => {
   t.throws(
     () => StandardMerkleTree.load({ format: 'nonstandard' } as any),
@@ -132,8 +123,8 @@ test('reject malformed tree dump', t => {
       StandardMerkleTree.load({
         format: 'standard-v1',
         tree: [zero],
-        values: [{ value: [0], treeIndex: 0 }],
-        leafEncoding: ['uint256'],
+        values: [{ value: 0, treeIndex: 0 }],
+        leafEncoding: 'uint256',
       }),
     new InvariantError('Merkle tree does not contain the expected value'),
   );
@@ -143,8 +134,8 @@ test('reject malformed tree dump', t => {
       StandardMerkleTree.load({
         format: 'standard-v1',
         tree: [zero, zero, keccak256(keccak256(zero))],
-        values: [{ value: [0], treeIndex: 2 }],
-        leafEncoding: ['uint256'],
+        values: [{ value: 0, treeIndex: 2 }],
+        leafEncoding: 'uint256',
       }),
     new InvariantError('Merkle tree is invalid'),
   );

@@ -1,8 +1,6 @@
 {
   "format": "standard-v1",
-  "leafEncoding": [
-    "string"
-  ],
+  "leafEncoding": "string",
   "tree": [
     "0xe5a97ee0784bb42f307377b5d7f8ff375c928bb000aeb0c3ca298fef5369536e",
     "0xeec4baed5ba8457c15c07f49bc4ef749324d3887cd4365ee7a366c46a6f2d68f",
@@ -18,39 +16,27 @@
   ],
   "values": [
     {
-      "value": [
-        "a"
-      ],
+      "value": "a",
       "treeIndex": 5
     },
     {
-      "value": [
-        "b"
-      ],
+      "value": "b",
       "treeIndex": 8
     },
     {
-      "value": [
-        "c"
-      ],
+      "value": "c",
       "treeIndex": 10
     },
     {
-      "value": [
-        "d"
-      ],
+      "value": "d",
       "treeIndex": 6
     },
     {
-      "value": [
-        "e"
-      ],
+      "value": "e",
       "treeIndex": 9
     },
     {
-      "value": [
-        "f"
-      ],
+      "value": "f",
       "treeIndex": 7
     }
   ]
