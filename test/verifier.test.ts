@@ -84,3 +84,41 @@ test('invalid address', async t => {
 
   t.true(!result.return);
 });
+
+test('valid (uint64,address)', async t => {
+  const leaves = [
+    [11, alice],
+    [22, bob],
+    [33, charlie],
+  ];
+  const tree = StandardMerkleTree.of(leaves, ['uint64', 'address']);
+
+  const leafIndex = tree.leafLookup(leaves[1]);
+  const proof = tree.getProof(leafIndex).map(n => Buffer.from(n.slice(2), 'hex'));
+  const root = Buffer.from(tree.root.slice(2), 'hex');
+  const leaf = algosdk.ABIType.from('(uint64,address)').encode(leaves[1]);
+
+  const result = await typedClient.verifyProof({ root, leaf, proof });
+
+  t.true(tree.verify(leafIndex, tree.getProof(leafIndex)));
+  t.true(result.return);
+});
+
+test('invalid (uint64,address)', async t => {
+  const leaves = [
+    [11, alice],
+    [22, bob],
+    [33, charlie],
+  ];
+  const tree = StandardMerkleTree.of(leaves, ['uint64', 'address']);
+
+  const leafIndex = tree.leafLookup(leaves[1]);
+  const proof = tree.getProof(leafIndex).map(n => Buffer.from(n.slice(2), 'hex'));
+  const root = Buffer.from(tree.root.slice(2), 'hex');
+  const leaf = algosdk.ABIType.from('(uint64,address)').encode([1337, dave]);
+
+  const result = await typedClient.verifyProof({ root, leaf, proof });
+
+  t.true(tree.verify(leafIndex, tree.getProof(leafIndex)));
+  t.false(result.return);
+});
