@@ -5,13 +5,13 @@ export default class SortedStandardVerifier extends Contract {
    * Prove that a leaf is in a merkle tree by verifying the path to the root
    *
    * @param root The merkle root
-   * @param leaf The unhashed leaf to verify. This should be the raw ABI encoded value.
+   * @param hashedLeaf The hashed leaf to verify
    * @param proof The merkle proof
    *
    * @returns True if the proof is valid, false otherwise
    */
-  verifyProof(root: bytes32, leaf: bytes, proof: bytes32[]): boolean {
-    let hash = keccak256(keccak256(leaf));
+  keccak256Verify(root: bytes32, hashedLeaf: bytes32, proof: bytes32[]): boolean {
+    let hash = hashedLeaf;
 
     for (let i = 0; i < proof.length; i += 1) {
       // keccak256 requires 130, so just giving some extra room here

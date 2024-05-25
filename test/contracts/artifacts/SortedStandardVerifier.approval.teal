@@ -22,8 +22,8 @@ switch *call_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEM
 	// The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 	err
 
-// verifyProof(byte[32],byte[],byte[32][])bool
-*abi_route_verifyProof:
+// keccak256Verify(byte[32],byte[32],byte[32][])bool
+*abi_route_keccak256Verify:
 	// The ABI return prefix
 	byte 0x151f7c75
 
@@ -31,9 +31,15 @@ switch *call_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEM
 	txna ApplicationArgs 3
 	extract 2 0
 
-	// leaf: byte[]
+	// hashedLeaf: byte[32]
 	txna ApplicationArgs 2
-	extract 2 0
+	dup
+	len
+	int 32
+	==
+
+	// argument 1 (hashedLeaf) for keccak256Verify must be a byte[32]
+	assert
 
 	// root: byte[32]
 	txna ApplicationArgs 1
@@ -42,11 +48,11 @@ switch *call_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEM
 	int 32
 	==
 
-	// argument 2 (root) for verifyProof must be a byte[32]
+	// argument 2 (root) for keccak256Verify must be a byte[32]
 	assert
 
-	// execute verifyProof(byte[32],byte[],byte[32][])bool
-	callsub verifyProof
+	// execute keccak256Verify(byte[32],byte[32],byte[32][])bool
+	callsub keccak256Verify
 	byte 0x00
 	int 0
 	uncover 2
@@ -56,38 +62,30 @@ switch *call_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEM
 	int 1
 	return
 
-// verifyProof(root: bytes32, leaf: bytes, proof: bytes32[]): boolean
+// keccak256Verify(root: bytes32, hashedLeaf: bytes32, proof: bytes32[]): boolean
 //
 // Prove that a leaf is in a merkle tree by verifying the path to the root
 //
 // @param root The merkle root
-// @param leaf The unhashed leaf to verify. This should be the raw ABI encoded value.
+// @param hashedLeaf The hashed leaf to verify
 // @param proof The merkle proof
 //
 // @returns True if the proof is valid, false otherwise
-verifyProof:
+keccak256Verify:
 	proto 3 1
 
 	// Push empty bytes after the frame pointer to reserve space for local variables
 	byte 0x
-	dup
-
-	// test/contracts/sorted_standard_verifier.algo.ts:14
-	// hash = keccak256(keccak256(leaf))
-	frame_dig -2 // leaf: bytes
-	keccak256
-	keccak256
-	frame_bury 0 // hash: byte[32]
 
 	// test/contracts/sorted_standard_verifier.algo.ts:16
 	// for (let i = 0; i < proof.length; i += 1)
 	int 0
-	frame_bury 1 // i: uint64
+	frame_bury 0 // i: uint64
 
 *for_0:
 	// test/contracts/sorted_standard_verifier.algo.ts:16
 	// i < proof.length
-	frame_dig 1 // i: uint64
+	frame_dig 0 // i: uint64
 	frame_dig -3 // proof: bytes32[]
 	len
 	int 32
@@ -126,7 +124,7 @@ verifyProof:
 	frame_dig -3 // proof: bytes32[]
 	store 255 // full array
 	int 0 // initial offset
-	frame_dig 1 // i: uint64
+	frame_dig 0 // i: uint64
 	int 32
 	* // acc * typeLength
 	+
@@ -134,18 +132,18 @@ verifyProof:
 	swap
 	int 32
 	extract3
-	frame_dig 0 // hash: byte[32]
+	frame_dig -2 // hashedLeaf: bytes32
 	b>
 	bz *if1_else
 
 	// *if1_consequent
 	// test/contracts/sorted_standard_verifier.algo.ts:23
 	// hash = keccak256(hash + proof[i])
-	frame_dig 0 // hash: byte[32]
+	frame_dig -2 // hashedLeaf: bytes32
 	frame_dig -3 // proof: bytes32[]
 	store 255 // full array
 	int 0 // initial offset
-	frame_dig 1 // i: uint64
+	frame_dig 0 // i: uint64
 	int 32
 	* // acc * typeLength
 	+
@@ -155,7 +153,7 @@ verifyProof:
 	extract3
 	concat
 	keccak256
-	frame_bury 0 // hash: byte[32]
+	frame_bury -2 // hash: bytes32
 	b *if1_end
 
 *if1_else:
@@ -164,7 +162,7 @@ verifyProof:
 	frame_dig -3 // proof: bytes32[]
 	store 255 // full array
 	int 0 // initial offset
-	frame_dig 1 // i: uint64
+	frame_dig 0 // i: uint64
 	int 32
 	* // acc * typeLength
 	+
@@ -172,34 +170,31 @@ verifyProof:
 	swap
 	int 32
 	extract3
-	frame_dig 0 // hash: byte[32]
+	frame_dig -2 // hashedLeaf: bytes32
 	concat
 	keccak256
-	frame_bury 0 // hash: byte[32]
+	frame_bury -2 // hash: bytes32
 
 *if1_end:
 
 *for_0_continue:
 	// test/contracts/sorted_standard_verifier.algo.ts:16
 	// i += 1
-	frame_dig 1 // i: uint64
+	frame_dig 0 // i: uint64
 	int 1
 	+
-	frame_bury 1 // i: uint64
+	frame_bury 0 // i: uint64
 	b *for_0
 
 *for_0_end:
 	// test/contracts/sorted_standard_verifier.algo.ts:29
 	// return hash === root;
-	frame_dig 0 // hash: byte[32]
+	frame_dig -2 // hashedLeaf: bytes32
 	frame_dig -1 // root: bytes32
 	==
 
 	// set the subroutine return value
 	frame_bury 0
-
-	// pop all local variables from the stack
-	popn 1
 	retsub
 
 *abi_route_createApplication:
@@ -215,9 +210,9 @@ verifyProof:
 	err
 
 *call_NoOp:
-	method "verifyProof(byte[32],byte[],byte[32][])bool"
+	method "keccak256Verify(byte[32],byte[32],byte[32][])bool"
 	txna ApplicationArgs 0
-	match *abi_route_verifyProof
+	match *abi_route_keccak256Verify
 
 	// this contract does not implement the given ABI method for call NoOp
 	err

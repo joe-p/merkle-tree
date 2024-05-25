@@ -3,7 +3,7 @@
   "desc": "",
   "methods": [
     {
-      "name": "verifyProof",
+      "name": "keccak256Verify",
       "desc": "Prove that a leaf is in a merkle tree by verifying the path to the root",
       "args": [
         {
@@ -12,9 +12,9 @@
           "desc": "The merkle root"
         },
         {
-          "name": "leaf",
-          "type": "byte[]",
-          "desc": "The unhashed leaf to verify. This should be the raw ABI encoded value."
+          "name": "hashedLeaf",
+          "type": "byte[32]",
+          "desc": "The hashed leaf to verify"
         },
         {
           "name": "proof",
