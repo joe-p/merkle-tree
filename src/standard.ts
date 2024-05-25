@@ -1,8 +1,10 @@
 import { HexString } from './bytes';
 import { MerkleTreeData, MerkleTreeImpl } from './merkletree';
 import { MerkleTreeOptions } from './options';
-import { standardLeafHash, standardNodeHash } from './hashes';
+import { sha256LeafHash, sha256NodeHash, standardLeafHash, standardNodeHash } from './hashes';
 import { validateArgument } from './utils/errors';
+
+export type HashFunction = 'keccak256' | 'sha256';
 
 export interface StandardMerkleTreeData<T extends any[]> extends MerkleTreeData<T> {
   format: 'standard-v1';
@@ -14,14 +16,14 @@ export interface StandardMerkleTreeOptions extends MerkleTreeOptions {
   hashFunction?: HashFunction;
 }
 
-export type HashFunction = 'keccak256';
-
 const leafHashFunctions = {
   keccak256: standardLeafHash,
+  sha256: sha256LeafHash,
 };
 
 const nodeHashFunctions = {
   keccak256: standardNodeHash,
+  sha256: sha256NodeHash,
 };
 
 export class StandardMerkleTree<T extends any[]> extends MerkleTreeImpl<T> {
@@ -31,7 +33,12 @@ export class StandardMerkleTree<T extends any[]> extends MerkleTreeImpl<T> {
     protected readonly leafEncoding: string,
     protected readonly hashFunction: HashFunction,
   ) {
-    super(tree, values, leaf => leafHashFunctions[this.hashFunction](leafEncoding, leaf));
+    super(
+      tree,
+      values,
+      leaf => leafHashFunctions[hashFunction](leafEncoding, leaf),
+      (a, b) => nodeHashFunctions[this.hashFunction](a, b),
+    );
   }
 
   static of<T extends any[]>(
@@ -40,15 +47,15 @@ export class StandardMerkleTree<T extends any[]> extends MerkleTreeImpl<T> {
     options: StandardMerkleTreeOptions = {},
   ): StandardMerkleTree<T> {
     // use default nodeHash (standardNodeHash)
-    const leafHashFunction = options.hashFunction ?? 'keccak256';
+    const hashFunction = options.hashFunction ?? 'keccak256';
     const [tree, indexedValues] = MerkleTreeImpl.prepare(
       values,
       options,
-      leaf => leafHashFunctions[leafHashFunction](leafEncoding, leaf),
-      nodeHashFunctions[leafHashFunction],
+      leaf => leafHashFunctions[hashFunction](leafEncoding, leaf),
+      nodeHashFunctions[hashFunction],
     );
 
-    return new StandardMerkleTree(tree, indexedValues, leafEncoding, leafHashFunction);
+    return new StandardMerkleTree(tree, indexedValues, leafEncoding, hashFunction);
   }
 
   static load<T extends any[]>(data: StandardMerkleTreeData<T>): StandardMerkleTree<T> {

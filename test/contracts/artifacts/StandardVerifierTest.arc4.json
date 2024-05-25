@@ -16,6 +16,18 @@
         {
           "name": "tupleKeccak256Root",
           "type": "byte[32]"
+        },
+        {
+          "name": "uint64Sha256Root",
+          "type": "byte[32]"
+        },
+        {
+          "name": "addressSha256Root",
+          "type": "byte[32]"
+        },
+        {
+          "name": "tupleSha256Root",
+          "type": "byte[32]"
         }
       ],
       "returns": {
@@ -56,6 +68,54 @@
     },
     {
       "name": "tupleKeccak256Verify",
+      "args": [
+        {
+          "name": "leaf",
+          "type": "(uint64,address)"
+        },
+        {
+          "name": "proof",
+          "type": "byte[32][]"
+        }
+      ],
+      "returns": {
+        "type": "bool"
+      }
+    },
+    {
+      "name": "uint64sha256Verify",
+      "args": [
+        {
+          "name": "leaf",
+          "type": "uint64"
+        },
+        {
+          "name": "proof",
+          "type": "byte[32][]"
+        }
+      ],
+      "returns": {
+        "type": "bool"
+      }
+    },
+    {
+      "name": "addressSha256Verify",
+      "args": [
+        {
+          "name": "leaf",
+          "type": "address"
+        },
+        {
+          "name": "proof",
+          "type": "byte[32][]"
+        }
+      ],
+      "returns": {
+        "type": "bool"
+      }
+    },
+    {
+      "name": "tupleSha256Verify",
       "args": [
         {
           "name": "leaf",

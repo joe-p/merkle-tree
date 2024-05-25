@@ -24,7 +24,7 @@ switch *call_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEM
 
 // keccak256Verify(hashedLeaf: bytes32, proof: bytes32[], root: bytes32): boolean
 //
-// Prove that a leaf is in a merkle tree by verifying the path to the root
+// Prove that a leaf is in a merkle tree by verifying the path to the root using keccak256.
 //
 // @param hashedLeaf The hashed leaf to verify
 // @param proof The merkle proof
@@ -157,8 +157,173 @@ keccak256Verify:
 	frame_bury 0
 	retsub
 
-// createApplication(byte[32],byte[32],byte[32])void
+// sha256Verify(hashedLeaf: bytes32, proof: bytes32[], root: bytes32): boolean
+//
+// Prove that a leaf is in a merkle tree by verifying the path to the root using sha256.
+//
+// @param hashedLeaf The hashed leaf to verify
+// @param proof The merkle proof
+// @param root The merkle root
+//
+// @returns True if the proof is valid, false otherwise
+sha256Verify:
+	proto 3 1
+
+	// Push empty bytes after the frame pointer to reserve space for local variables
+	byte 0x
+
+	// test/contracts/standard_verifier.algo.ts:44
+	// for (let i = 0; i < proof.length; i += 1)
+	int 0
+	frame_bury 0 // i: uint64
+
+*for_1:
+	// test/contracts/standard_verifier.algo.ts:44
+	// i < proof.length
+	frame_dig 0 // i: uint64
+	frame_dig -2 // proof: bytes32[]
+	len
+	int 32
+	/
+	<
+	bz *for_1_end
+
+	// *if2_condition
+	// test/contracts/standard_verifier.algo.ts:46
+	// globals.opcodeBudget < 50
+	global OpcodeBudget
+	int 50
+	<
+	bz *if2_end
+
+	// *if2_consequent
+	// test/contracts/standard_verifier.algo.ts:47
+	// increaseOpcodeBudget()
+	itxn_begin
+	int appl
+	itxn_field TypeEnum
+	int 0
+	itxn_field Fee
+	byte b64 CoEB // #pragma version 10; int 1
+	dup
+	itxn_field ApprovalProgram
+	itxn_field ClearStateProgram
+	int DeleteApplication
+	itxn_field OnCompletion
+	itxn_submit
+
+*if2_end:
+	// *if3_condition
+	// test/contracts/standard_verifier.algo.ts:50
+	// btobigint(proof[i]) > btobigint(hash)
+	frame_dig -2 // proof: bytes32[]
+	store 255 // full array
+	int 0 // initial offset
+	frame_dig 0 // i: uint64
+	int 32
+	* // acc * typeLength
+	+
+	load 255 // full array
+	swap
+	int 32
+	extract3
+	frame_dig -1 // hashedLeaf: bytes32
+	b>
+	bz *if3_else
+
+	// *if3_consequent
+	// test/contracts/standard_verifier.algo.ts:51
+	// hash = sha256(hash + proof[i])
+	frame_dig -1 // hashedLeaf: bytes32
+	frame_dig -2 // proof: bytes32[]
+	store 255 // full array
+	int 0 // initial offset
+	frame_dig 0 // i: uint64
+	int 32
+	* // acc * typeLength
+	+
+	load 255 // full array
+	swap
+	int 32
+	extract3
+	concat
+	sha256
+	frame_bury -1 // hash: bytes32
+	b *if3_end
+
+*if3_else:
+	// test/contracts/standard_verifier.algo.ts:53
+	// hash = sha256(proof[i] + hash)
+	frame_dig -2 // proof: bytes32[]
+	store 255 // full array
+	int 0 // initial offset
+	frame_dig 0 // i: uint64
+	int 32
+	* // acc * typeLength
+	+
+	load 255 // full array
+	swap
+	int 32
+	extract3
+	frame_dig -1 // hashedLeaf: bytes32
+	concat
+	sha256
+	frame_bury -1 // hash: bytes32
+
+*if3_end:
+
+*for_1_continue:
+	// test/contracts/standard_verifier.algo.ts:44
+	// i += 1
+	frame_dig 0 // i: uint64
+	int 1
+	+
+	frame_bury 0 // i: uint64
+	b *for_1
+
+*for_1_end:
+	// test/contracts/standard_verifier.algo.ts:57
+	// return hash === root;
+	frame_dig -1 // hashedLeaf: bytes32
+	frame_dig -3 // root: bytes32
+	==
+
+	// set the subroutine return value
+	frame_bury 0
+	retsub
+
+// createApplication(byte[32],byte[32],byte[32],byte[32],byte[32],byte[32])void
 *abi_route_createApplication:
+	// tupleSha256Root: byte[32]
+	txna ApplicationArgs 6
+	dup
+	len
+	int 32
+	==
+
+	// argument 0 (tupleSha256Root) for createApplication must be a byte[32]
+	assert
+
+	// addressSha256Root: byte[32]
+	txna ApplicationArgs 5
+	dup
+	len
+	int 32
+	==
+
+	// argument 1 (addressSha256Root) for createApplication must be a byte[32]
+	assert
+
+	// uint64Sha256Root: byte[32]
+	txna ApplicationArgs 4
+	dup
+	len
+	int 32
+	==
+
+	// argument 2 (uint64Sha256Root) for createApplication must be a byte[32]
+	assert
+
 	// tupleKeccak256Root: byte[32]
 	txna ApplicationArgs 3
 	dup
@@ -166,7 +331,7 @@ keccak256Verify:
 	int 32
 	==
 
-	// argument 0 (tupleKeccak256Root) for createApplication must be a byte[32]
+	// argument 3 (tupleKeccak256Root) for createApplication must be a byte[32]
 	assert
 
 	// addressKeccak256Root: byte[32]
@@ -176,7 +341,7 @@ keccak256Verify:
 	int 32
 	==
 
-	// argument 1 (addressKeccak256Root) for createApplication must be a byte[32]
+	// argument 4 (addressKeccak256Root) for createApplication must be a byte[32]
 	assert
 
 	// uint64Keccak256Root: byte[32]
@@ -186,34 +351,52 @@ keccak256Verify:
 	int 32
 	==
 
-	// argument 2 (uint64Keccak256Root) for createApplication must be a byte[32]
+	// argument 5 (uint64Keccak256Root) for createApplication must be a byte[32]
 	assert
 
-	// execute createApplication(byte[32],byte[32],byte[32])void
+	// execute createApplication(byte[32],byte[32],byte[32],byte[32],byte[32],byte[32])void
 	callsub createApplication
 	int 1
 	return
 
-// createApplication(uint64Keccak256Root: bytes32, addressKeccak256Root: bytes32, tupleKeccak256Root: bytes32): void
+// createApplication(uint64Keccak256Root: bytes32, addressKeccak256Root: bytes32, tupleKeccak256Root: bytes32, uint64Sha256Root: bytes32, addressSha256Root: bytes32, tupleSha256Root: bytes32): void
 createApplication:
-	proto 3 0
+	proto 6 0
 
-	// test/contracts/standard_verifier_test.algo.ts:9
+	// test/contracts/standard_verifier_test.algo.ts:20
 	// this.uint64Keccak256Root.value = uint64Keccak256Root
 	byte 0x75696e7436344b656363616b323536526f6f74 // "uint64Keccak256Root"
 	frame_dig -1 // uint64Keccak256Root: bytes32
 	app_global_put
 
-	// test/contracts/standard_verifier_test.algo.ts:10
+	// test/contracts/standard_verifier_test.algo.ts:21
 	// this.addressKeccak256Root.value = addressKeccak256Root
 	byte 0x616464726573734b656363616b323536526f6f74 // "addressKeccak256Root"
 	frame_dig -2 // addressKeccak256Root: bytes32
 	app_global_put
 
-	// test/contracts/standard_verifier_test.algo.ts:11
+	// test/contracts/standard_verifier_test.algo.ts:22
 	// this.tupleKeccak256Root.value = tupleKeccak256Root
 	byte 0x7475706c654b656363616b323536526f6f74 // "tupleKeccak256Root"
 	frame_dig -3 // tupleKeccak256Root: bytes32
+	app_global_put
+
+	// test/contracts/standard_verifier_test.algo.ts:23
+	// this.uint64Sha256Root.value = uint64Sha256Root
+	byte 0x75696e743634536861323536526f6f74 // "uint64Sha256Root"
+	frame_dig -4 // uint64Sha256Root: bytes32
+	app_global_put
+
+	// test/contracts/standard_verifier_test.algo.ts:24
+	// this.addressSha256Root.value = addressSha256Root
+	byte 0x61646472657373536861323536526f6f74 // "addressSha256Root"
+	frame_dig -5 // addressSha256Root: bytes32
+	app_global_put
+
+	// test/contracts/standard_verifier_test.algo.ts:25
+	// this.tupleSha256Root.value = tupleSha256Root
+	byte 0x7475706c65536861323536526f6f74 // "tupleSha256Root"
+	frame_dig -6 // tupleSha256Root: bytes32
 	app_global_put
 	retsub
 
@@ -248,7 +431,7 @@ uint64keccak256Verify:
 	// Push empty bytes after the frame pointer to reserve space for local variables
 	byte 0x
 
-	// test/contracts/standard_verifier_test.algo.ts:15
+	// test/contracts/standard_verifier_test.algo.ts:29
 	// hashedLeaf = keccak256(keccak256(itob(leaf)))
 	frame_dig -1 // leaf: uint64
 	itob
@@ -256,7 +439,7 @@ uint64keccak256Verify:
 	keccak256
 	frame_bury 0 // hashedLeaf: byte[32]
 
-	// test/contracts/standard_verifier_test.algo.ts:16
+	// test/contracts/standard_verifier_test.algo.ts:30
 	// return this.keccak256Verify(hashedLeaf, proof, this.uint64Keccak256Root.value);
 	byte 0x75696e7436344b656363616b323536526f6f74 // "uint64Keccak256Root"
 	app_global_get
@@ -305,14 +488,14 @@ addressKeccak256Verify:
 	// Push empty bytes after the frame pointer to reserve space for local variables
 	byte 0x
 
-	// test/contracts/standard_verifier_test.algo.ts:20
+	// test/contracts/standard_verifier_test.algo.ts:34
 	// hashedLeaf = keccak256(keccak256(leaf))
 	frame_dig -1 // leaf: Address
 	keccak256
 	keccak256
 	frame_bury 0 // hashedLeaf: byte[32]
 
-	// test/contracts/standard_verifier_test.algo.ts:21
+	// test/contracts/standard_verifier_test.algo.ts:35
 	// return this.keccak256Verify(hashedLeaf, proof, this.addressKeccak256Root.value);
 	byte 0x616464726573734b656363616b323536526f6f74 // "addressKeccak256Root"
 	app_global_get
@@ -361,14 +544,14 @@ tupleKeccak256Verify:
 	// Push empty bytes after the frame pointer to reserve space for local variables
 	byte 0x
 
-	// test/contracts/standard_verifier_test.algo.ts:25
+	// test/contracts/standard_verifier_test.algo.ts:39
 	// hashedLeaf = keccak256(keccak256(rawBytes(leaf)))
 	frame_dig -1 // leaf: [uint64, Address]
 	keccak256
 	keccak256
 	frame_bury 0 // hashedLeaf: byte[32]
 
-	// test/contracts/standard_verifier_test.algo.ts:26
+	// test/contracts/standard_verifier_test.algo.ts:40
 	// return this.keccak256Verify(hashedLeaf, proof, this.tupleKeccak256Root.value);
 	byte 0x7475706c654b656363616b323536526f6f74 // "tupleKeccak256Root"
 	app_global_get
@@ -380,8 +563,171 @@ tupleKeccak256Verify:
 	frame_bury 0
 	retsub
 
+// uint64sha256Verify(uint64,byte[32][])bool
+*abi_route_uint64sha256Verify:
+	// The ABI return prefix
+	byte 0x151f7c75
+
+	// proof: byte[32][]
+	txna ApplicationArgs 2
+	extract 2 0
+
+	// leaf: uint64
+	txna ApplicationArgs 1
+	btoi
+
+	// execute uint64sha256Verify(uint64,byte[32][])bool
+	callsub uint64sha256Verify
+	byte 0x00
+	int 0
+	uncover 2
+	setbit
+	concat
+	log
+	int 1
+	return
+
+// uint64sha256Verify(leaf: uint64, proof: bytes32[]): boolean
+uint64sha256Verify:
+	proto 2 1
+
+	// Push empty bytes after the frame pointer to reserve space for local variables
+	byte 0x
+
+	// test/contracts/standard_verifier_test.algo.ts:44
+	// hashedLeaf = sha256(sha256(itob(leaf)))
+	frame_dig -1 // leaf: uint64
+	itob
+	sha256
+	sha256
+	frame_bury 0 // hashedLeaf: byte[32]
+
+	// test/contracts/standard_verifier_test.algo.ts:45
+	// return this.sha256Verify(hashedLeaf, proof, this.uint64Sha256Root.value);
+	byte 0x75696e743634536861323536526f6f74 // "uint64Sha256Root"
+	app_global_get
+	frame_dig -2 // proof: bytes32[]
+	frame_dig 0 // hashedLeaf: byte[32]
+	callsub sha256Verify
+
+	// set the subroutine return value
+	frame_bury 0
+	retsub
+
+// addressSha256Verify(address,byte[32][])bool
+*abi_route_addressSha256Verify:
+	// The ABI return prefix
+	byte 0x151f7c75
+
+	// proof: byte[32][]
+	txna ApplicationArgs 2
+	extract 2 0
+
+	// leaf: address
+	txna ApplicationArgs 1
+	dup
+	len
+	int 32
+	==
+
+	// argument 1 (leaf) for addressSha256Verify must be a address
+	assert
+
+	// execute addressSha256Verify(address,byte[32][])bool
+	callsub addressSha256Verify
+	byte 0x00
+	int 0
+	uncover 2
+	setbit
+	concat
+	log
+	int 1
+	return
+
+// addressSha256Verify(leaf: Address, proof: bytes32[]): boolean
+addressSha256Verify:
+	proto 2 1
+
+	// Push empty bytes after the frame pointer to reserve space for local variables
+	byte 0x
+
+	// test/contracts/standard_verifier_test.algo.ts:49
+	// hashedLeaf = sha256(sha256(leaf))
+	frame_dig -1 // leaf: Address
+	sha256
+	sha256
+	frame_bury 0 // hashedLeaf: byte[32]
+
+	// test/contracts/standard_verifier_test.algo.ts:50
+	// return this.sha256Verify(hashedLeaf, proof, this.addressSha256Root.value);
+	byte 0x61646472657373536861323536526f6f74 // "addressSha256Root"
+	app_global_get
+	frame_dig -2 // proof: bytes32[]
+	frame_dig 0 // hashedLeaf: byte[32]
+	callsub sha256Verify
+
+	// set the subroutine return value
+	frame_bury 0
+	retsub
+
+// tupleSha256Verify((uint64,address),byte[32][])bool
+*abi_route_tupleSha256Verify:
+	// The ABI return prefix
+	byte 0x151f7c75
+
+	// proof: byte[32][]
+	txna ApplicationArgs 2
+	extract 2 0
+
+	// leaf: (uint64,address)
+	txna ApplicationArgs 1
+	dup
+	len
+	int 40
+	==
+
+	// argument 1 (leaf) for tupleSha256Verify must be a (uint64,address)
+	assert
+
+	// execute tupleSha256Verify((uint64,address),byte[32][])bool
+	callsub tupleSha256Verify
+	byte 0x00
+	int 0
+	uncover 2
+	setbit
+	concat
+	log
+	int 1
+	return
+
+// tupleSha256Verify(leaf: [uint64, Address], proof: bytes32[]): boolean
+tupleSha256Verify:
+	proto 2 1
+
+	// Push empty bytes after the frame pointer to reserve space for local variables
+	byte 0x
+
+	// test/contracts/standard_verifier_test.algo.ts:54
+	// hashedLeaf = sha256(sha256(rawBytes(leaf)))
+	frame_dig -1 // leaf: [uint64, Address]
+	sha256
+	sha256
+	frame_bury 0 // hashedLeaf: byte[32]
+
+	// test/contracts/standard_verifier_test.algo.ts:55
+	// return this.sha256Verify(hashedLeaf, proof, this.tupleSha256Root.value);
+	byte 0x7475706c65536861323536526f6f74 // "tupleSha256Root"
+	app_global_get
+	frame_dig -2 // proof: bytes32[]
+	frame_dig 0 // hashedLeaf: byte[32]
+	callsub sha256Verify
+
+	// set the subroutine return value
+	frame_bury 0
+	retsub
+
 *create_NoOp:
-	method "createApplication(byte[32],byte[32],byte[32])void"
+	method "createApplication(byte[32],byte[32],byte[32],byte[32],byte[32],byte[32])void"
 	txna ApplicationArgs 0
 	match *abi_route_createApplication
 
@@ -392,8 +738,11 @@ tupleKeccak256Verify:
 	method "uint64keccak256Verify(uint64,byte[32][])bool"
 	method "addressKeccak256Verify(address,byte[32][])bool"
 	method "tupleKeccak256Verify((uint64,address),byte[32][])bool"
+	method "uint64sha256Verify(uint64,byte[32][])bool"
+	method "addressSha256Verify(address,byte[32][])bool"
+	method "tupleSha256Verify((uint64,address),byte[32][])bool"
 	txna ApplicationArgs 0
-	match *abi_route_uint64keccak256Verify *abi_route_addressKeccak256Verify *abi_route_tupleKeccak256Verify
+	match *abi_route_uint64keccak256Verify *abi_route_addressKeccak256Verify *abi_route_tupleKeccak256Verify *abi_route_uint64sha256Verify *abi_route_addressSha256Verify *abi_route_tupleSha256Verify
 
 	// this contract does not implement the given ABI method for call NoOp
 	err

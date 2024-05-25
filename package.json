@@ -31,6 +31,7 @@
     "@ethersproject/bytes": "^5.7.0",
     "@ethersproject/constants": "^5.7.0",
     "@ethersproject/keccak256": "^5.7.0",
+    "@ethersproject/sha2": "^5.7.0",
     "algosdk": "^2.7.0"
   },
   "devDependencies": {
