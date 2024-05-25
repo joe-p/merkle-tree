@@ -1,0 +1,74 @@
+{
+  "name": "StandardVerifierTest",
+  "desc": "",
+  "methods": [
+    {
+      "name": "createApplication",
+      "args": [
+        {
+          "name": "uint64Keccak256Root",
+          "type": "byte[32]"
+        },
+        {
+          "name": "addressKeccak256Root",
+          "type": "byte[32]"
+        },
+        {
+          "name": "tupleKeccak256Root",
+          "type": "byte[32]"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "uint64keccak256Verify",
+      "args": [
+        {
+          "name": "leaf",
+          "type": "uint64"
+        },
+        {
+          "name": "proof",
+          "type": "byte[32][]"
+        }
+      ],
+      "returns": {
+        "type": "bool"
+      }
+    },
+    {
+      "name": "addressKeccak256Verify",
+      "args": [
+        {
+          "name": "leaf",
+          "type": "address"
+        },
+        {
+          "name": "proof",
+          "type": "byte[32][]"
+        }
+      ],
+      "returns": {
+        "type": "bool"
+      }
+    },
+    {
+      "name": "tupleKeccak256Verify",
+      "args": [
+        {
+          "name": "leaf",
+          "type": "(uint64,address)"
+        },
+        {
+          "name": "proof",
+          "type": "byte[32][]"
+        }
+      ],
+      "returns": {
+        "type": "bool"
+      }
+    }
+  ]
+}

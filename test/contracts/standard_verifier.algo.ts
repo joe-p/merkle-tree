@@ -1,16 +1,16 @@
 import { Contract } from '@algorandfoundation/tealscript';
 
-export default class StandardVerifier extends Contract {
+export class StandardVerifier extends Contract {
   /**
-   * Prove that a leaf is in a merkle tree by verifying the path to the root
+   * Prove that a leaf is in a merkle tree by verifying the path to the root.
    *
-   * @param root The merkle root
    * @param hashedLeaf The hashed leaf to verify
    * @param proof The merkle proof
+   * @param root The merkle root
    *
    * @returns True if the proof is valid, false otherwise
    */
-  keccak256Verify(root: bytes32, hashedLeaf: bytes32, proof: bytes32[]): boolean {
+  protected keccak256Verify(hashedLeaf: bytes32, proof: bytes32[], root: bytes32): boolean {
     let hash = hashedLeaf;
 
     for (let i = 0; i < proof.length; i += 1) {

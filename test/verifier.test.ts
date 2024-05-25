@@ -1,40 +1,35 @@
 import test from 'ava';
 import { StandardMerkleTree } from '../src';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
-import { StandardVerifierClient } from './contracts/clients/StandardVerifier.ts';
-import algosdk, { ABIValue } from 'algosdk';
-import { keccak256 } from '@ethersproject/keccak256';
+import algosdk from 'algosdk';
+import { StandardVerifierTestClient } from './contracts/clients/StandardVerifierTest';
 
 const fixture = algorandFixture();
-let typedClient: StandardVerifierClient;
+let typedClient: StandardVerifierTestClient;
 
 const alice = algosdk.generateAccount().addr;
 const bob = algosdk.generateAccount().addr;
 const charlie = algosdk.generateAccount().addr;
 const dave = algosdk.generateAccount().addr;
 
-async function verifyProofTest<LeafType extends ABIValue>(
-  leaves: LeafType[],
-  encoding: string,
-  leafToVerify: LeafType,
-): Promise<boolean> {
-  const tree = StandardMerkleTree.of(leaves, encoding);
+const uint64Leaves = [11, 22, 33];
+const addressLeaves = [alice, bob, charlie];
+const tupleLeaves = [
+  [11, alice],
+  [22, bob],
+  [33, charlie],
+];
 
-  const result = await typedClient.keccak256Verify({
-    root: Buffer.from(tree.root.slice(2), 'hex'),
-    hashedLeaf: Buffer.from(keccak256(keccak256(algosdk.ABIType.from(encoding).encode(leafToVerify))).slice(2), 'hex'),
-    proof: tree.getProof(leaves[1]).map(n => Buffer.from(n.slice(2), 'hex')),
-  });
-
-  return result.return as boolean;
-}
+const uint64Keccack256Tree = StandardMerkleTree.of(uint64Leaves, 'uint64');
+const addressKeccack256Tree = StandardMerkleTree.of(addressLeaves, 'address');
+const tupleKeccack256Tree = StandardMerkleTree.of(tupleLeaves, '(uint64,address)');
 
 test.before(async t => {
   await fixture.beforeEach();
   const { algorand } = fixture;
   const { testAccount } = fixture.context;
 
-  typedClient = new StandardVerifierClient(
+  typedClient = new StandardVerifierTestClient(
     {
       resolveBy: 'id',
       id: 0,
@@ -43,7 +38,11 @@ test.before(async t => {
     algorand.client.algod,
   );
 
-  await typedClient.create.createApplication({});
+  await typedClient.create.createApplication({
+    uint64Keccak256Root: Buffer.from(uint64Keccack256Tree.root.slice(2), 'hex'),
+    addressKeccak256Root: Buffer.from(addressKeccack256Tree.root.slice(2), 'hex'),
+    tupleKeccak256Root: Buffer.from(tupleKeccack256Tree.root.slice(2), 'hex'),
+  });
 });
 
 test.beforeEach(async t => {
@@ -51,37 +50,49 @@ test.beforeEach(async t => {
 });
 
 test('valid uint64', async t => {
-  t.true(await verifyProofTest([11, 22, 33], 'uint64', 22));
+  const result = await typedClient.uint64keccak256Verify({
+    leaf: 22,
+    proof: uint64Keccack256Tree.getProof(22).map(n => Buffer.from(n.slice(2), 'hex')),
+  });
+  t.true(result.return);
 });
 
 test('invalid uint64', async t => {
-  t.false(await verifyProofTest([11, 22, 33], 'uint64', 1337));
+  const result = await typedClient.uint64keccak256Verify({
+    leaf: 1337,
+    proof: uint64Keccack256Tree.getProof(22).map(n => Buffer.from(n.slice(2), 'hex')),
+  });
+  t.false(result.return);
 });
 
 test('valid address', async t => {
-  t.true(await verifyProofTest([alice, bob, charlie], 'address', bob));
+  const result = await typedClient.addressKeccak256Verify({
+    leaf: bob,
+    proof: addressKeccack256Tree.getProof(bob).map(n => Buffer.from(n.slice(2), 'hex')),
+  });
+  t.true(result.return);
 });
 
 test('invalid address', async t => {
-  t.false(await verifyProofTest([alice, bob, charlie], 'address', dave));
+  const result = await typedClient.addressKeccak256Verify({
+    leaf: dave,
+    proof: addressKeccack256Tree.getProof(bob).map(n => Buffer.from(n.slice(2), 'hex')),
+  });
+  t.false(result.return);
 });
 
-test('valid (uint64,address)', async t => {
-  const leaves = [
-    [11, alice],
-    [22, bob],
-    [33, charlie],
-  ];
-
-  t.true(await verifyProofTest(leaves, '(uint64,address)', leaves[1]));
+test('valid tuple', async t => {
+  const result = await typedClient.tupleKeccak256Verify({
+    leaf: [22, bob],
+    proof: tupleKeccack256Tree.getProof([22, bob]).map(n => Buffer.from(n.slice(2), 'hex')),
+  });
+  t.true(result.return);
 });
 
-test('invalid (uint64,address)', async t => {
-  const leaves = [
-    [11, alice],
-    [22, bob],
-    [33, charlie],
-  ];
-
-  t.false(await verifyProofTest(leaves, '(uint64,address)', [1337, dave]));
+test('invalid tuple', async t => {
+  const result = await typedClient.tupleKeccak256Verify({
+    leaf: [22, dave],
+    proof: tupleKeccack256Tree.getProof([22, bob]).map(n => Buffer.from(n.slice(2), 'hex')),
+  });
+  t.false(result.return);
 });
