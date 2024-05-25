@@ -1,6 +1,7 @@
 {
   "format": "standard-v1",
   "leafEncoding": "string",
+  "hashFunction": "keccak256",
   "tree": [
     "0x4a761d814cd0506a32d2941e951b03bfb1d2acbe4824031df156a3d714699fbd",
     "0xfe42908179f9622e645ab25e50b4e4f1d872e103fc1ac3389cd4966dfa5ed3ad",

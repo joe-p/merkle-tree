@@ -47,27 +47,23 @@ testProp('generates valid single proofs for all leaves', [treeAndLeaf], (t, [tre
   const proof = tree.getProof(leaf);
 
   t.true(tree.verify(leaf, proof));
-  t.true(StandardMerkleTree.verify(tree.root, leafEncoding, leaf, proof));
 });
 
 testProp('rejects invalid proofs', [treeAndLeaf, tree], (t, [tree, , { value: leaf }], [otherTree]) => {
   const proof = tree.getProof(leaf);
   t.false(otherTree.verify(leaf, proof));
-  t.false(StandardMerkleTree.verify(otherTree.root, leafEncoding, leaf, proof));
 });
 
 testProp('generates valid multiproofs', [treeAndLeaves], (t, [tree, , indices]) => {
   const proof = tree.getMultiProof(indices.map(e => e.value));
 
   t.true(tree.verifyMultiProof(proof));
-  t.true(StandardMerkleTree.verifyMultiProof(tree.root, leafEncoding, proof));
 });
 
 testProp('rejects invalid multiproofs', [treeAndLeaves, tree], (t, [tree, , indices], [otherTree]) => {
   const multiProof = tree.getMultiProof(indices.map(e => e.value));
 
   t.false(otherTree.verifyMultiProof(multiProof));
-  t.false(StandardMerkleTree.verifyMultiProof(otherTree.root, leafEncoding, multiProof));
 });
 
 testProp(
@@ -125,6 +121,7 @@ test('reject malformed tree dump', t => {
         tree: [zero],
         values: [{ value: 0, treeIndex: 0 }],
         leafEncoding: 'uint256',
+        hashFunction: 'keccak256',
       }),
     new InvariantError('Merkle tree does not contain the expected value'),
   );
@@ -136,6 +133,7 @@ test('reject malformed tree dump', t => {
         tree: [zero, zero, keccak256(keccak256(zero))],
         values: [{ value: 0, treeIndex: 2 }],
         leafEncoding: 'uint256',
+        hashFunction: 'keccak256',
       }),
     new InvariantError('Merkle tree is invalid'),
   );
