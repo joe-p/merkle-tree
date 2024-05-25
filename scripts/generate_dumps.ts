@@ -6,8 +6,6 @@ const leaves = [['a'], ['b'], ['c'], ['d'], ['e'], ['f']];
 
 const sorted = StandardMerkleTree.of(leaves, ['string'], { sortLeaves: true });
 const dumpsDir = path.join(__dirname, '..', 'test', 'dumps');
-console.debug(__dirname);
-console.log(sorted.dump());
 
 const unsorted = StandardMerkleTree.of(leaves, ['string'], { sortLeaves: false });
 
